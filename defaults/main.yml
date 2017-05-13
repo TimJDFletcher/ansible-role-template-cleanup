@@ -1,2 +1,3 @@
 ---
-# defaults file for ansible-role-template-cleanup/
+# defaults file for ansible-role-template-cleanup
+template_cleanup_trim: false

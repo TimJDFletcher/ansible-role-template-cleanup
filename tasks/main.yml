@@ -1,2 +1,81 @@
 ---
-# tasks file for ansible-role-template-cleanup/
+# tasks file for ansible-role-template-cleanup
+- name: Use /tmp for ansible working dir
+  set_fact:
+    remote_tmp: /tmp/.ansible
+
+- name: Install aptitude
+  apt:
+    name: aptitude
+    state: present
+
+- name: Update all packages
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+    upgrade: full
+    autoremove: true
+
+- name: Find all files for deleting
+  find:
+    paths: 
+      - /var/log
+      - /var/lib/apt/lists
+      - /var/cache/apt
+    hidden: True
+    recurse: True
+    file_type: any  # Added in ansible 2.3
+  register: template_cleanup_delete_files
+
+- name: Stop rsyslog
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  with_items:
+    - rsyslog
+    - syslog.socket
+
+- name: remove collected files and directories
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ template_cleanup_delete_files.files }}"
+  
+- name: Clear out /home
+  file:
+    state: "{{ item }}"
+    path: /home
+    owner: root
+    group: root
+    mode: '0755'
+  with_items:
+    - absent
+    - directory
+
+- name: Call fstrim on all filesystems
+  command: fstrim "{{ item.mount }}"
+  with_items: "{{ ansible_mounts }}"
+  when: 
+    - template_cleanup_trim
+
+- name: Copy over ssh host keys systemd unit
+  copy:
+    src: ssh-keygen.service
+    dest: /etc/systemd/system/ssh-keygen.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable ssh host key service
+  systemd:
+    name: ssh-keygen
+    enabled: true
+    daemon_reload: true
+
+- name: Remove ssh host keys - note this will break ssh so make sure this is the final task
+  file:
+    state: absent
+    path: "/etc/ssh/ssh_host_{{ item[0] }}_key{{ item[1] }}"
+  with_nested:
+    - [ 'dsa', 'ecdsa', 'ed25519', 'rsa' ]
+    - [ '', '.pub' ]
