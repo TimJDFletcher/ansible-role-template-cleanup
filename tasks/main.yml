@@ -40,7 +40,14 @@
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ template_cleanup_delete_files.files }}"
-  
+
+- name: Create /var/log/lastlog
+  file:
+    state: touch
+    path: /var/log/lastlog
+  when:
+    template_cleanup_lastlog_touch
+
 - name: Clear out /home
   file:
     state: "{{ item }}"
