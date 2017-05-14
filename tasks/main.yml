@@ -15,18 +15,10 @@
     cache_valid_time: 3600
     upgrade: full
     autoremove: true
-
-- name: Find all files for deleting
-  find:
-    paths: 
-      - /var/log
-      - /var/lib/apt/lists
-      - /var/cache/apt
-    hidden: True
-    recurse: True
-    file_type: any  # Added in ansible 2.3
-  register: template_cleanup_delete_files
-
+    
+- name: clear kerberos cache
+  command: kdestroy -a
+  
 - name: Stop rsyslog
   systemd:
     name: "{{ item }}"
@@ -35,16 +27,58 @@
     - rsyslog
     - syslog.socket
 
-- name: remove collected files and directories
+- name: Find files for deleting
+  find:
+    paths: 
+      - /var/log
+      - /var/lib/apt/lists
+      - /var/cache/apt
+      - /var/lib/sss/db
+    hidden: True
+    recurse: True
+    file_type: any  # Added in ansible 2.3
+  register: template_cleanup_delete_files
+
+- name: Delete udev rules files
+  file:
+    state: absent
+    path: "/etc/udev/rules.d/70-persistent-{{ item }}.rules"
+  with_items:
+    - net
+    - cd
+
+- name: Delete machine-id file
+  file:
+    path: /etc/machine-id
+    state: absent
+
+- name: reset logrotate status
+  file:
+    path: /var/lib/logrotate.status
+    state: absent
+    
+- name: Delete gecos backup files
+  file:
+    state: absent
+    path: "/etc/{{ item }}-"
+  with_items:
+    - group
+    - gshadow
+    - passwd
+    - shadow
+    - subgid
+    - subuid
+
+- name: Remove collected files and directories
   file:
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ template_cleanup_delete_files.files }}"
 
-- name: Create /var/log/lastlog
+- name: Create /var/log/utmp
   file:
     state: touch
-    path: /var/log/lastlog
+    path: /var/log/utmp
   when:
     template_cleanup_lastlog_touch
 
