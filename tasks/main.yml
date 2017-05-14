@@ -16,8 +16,11 @@
     upgrade: full
     autoremove: true
     
-- name: clear kerberos cache
-  command: kdestroy -a
+- name: clear kerberos and sss caches
+  command: "{{ item }}"
+  with_items:
+    - kdestroy -a
+    - sss_cache -E
   
 - name: Stop rsyslog
   systemd:
