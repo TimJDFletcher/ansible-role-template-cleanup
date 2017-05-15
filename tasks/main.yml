@@ -120,9 +120,4 @@
     daemon_reload: true
 
 - name: Remove ssh host keys - note this will break ssh so make sure this is the final task
-  file:
-    state: absent
-    path: "/etc/ssh/ssh_host_{{ item[0] }}_key{{ item[1] }}"
-  with_nested:
-    - [ 'dsa', 'ecdsa', 'ed25519', 'rsa' ]
-    - [ '', '.pub' ]
+  script: ssh-key-clean.sh 
