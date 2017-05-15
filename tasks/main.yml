@@ -119,5 +119,6 @@
     enabled: true
     daemon_reload: true
 
-#- name: Remove ssh host keys - note this will break ssh so make sure this is the final task
-#  script: ssh-key-clean.sh 
+- name: Remove ssh host keys - note this will break ssh so make sure this is the final task
+  script: ssh-key-clean.sh 
+  ignore_errors: true
