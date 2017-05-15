@@ -4,6 +4,9 @@
   set_fact:
     remote_tmp: /tmp/.ansible
 
+- name: Flush handlers before we start
+  meta: flush_handlers
+
 - name: Install aptitude
   apt:
     name: aptitude
@@ -19,7 +22,7 @@
 - name: clear kerberos and sss caches
   command: "{{ item }}"
   with_items:
-    - kdestroy -a
+    - kdestroy -A
     - sss_cache -E
   
 - name: Stop rsyslog
