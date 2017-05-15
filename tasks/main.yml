@@ -42,7 +42,7 @@
       - /var/lib/sss/db
     hidden: True
     recurse: True
-    file_type: any  # Added in ansible 2.3
+    file_type: file
   register: template_cleanup_delete_files
 
 - name: Delete udev rules files
