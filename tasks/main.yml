@@ -1,9 +1,5 @@
 ---
 # tasks file for ansible-role-template-cleanup
-- name: Use /tmp for ansible working dir
-  set_fact:
-    remote_tmp: /tmp/.ansible
-
 - name: Flush handlers before we start
   meta: flush_handlers
 
@@ -18,21 +14,34 @@
     cache_valid_time: 3600
     upgrade: full
     autoremove: true
-    
-- name: clear kerberos and sss caches
-  command: "{{ item }}"
-  with_items:
-    - kdestroy -A
-    - sss_cache -E
   
-- name: Stop rsyslog
+- name: Copy over systemd units
+  copy:
+    src: "{{ item }}.service"
+    dest: "/etc/systemd/system/{{ item }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - firstboot
+    - ssh-keygen
+
+- name: Enable systemd services
+  systemd:
+    name: "{{ item }}"
+    enabled: true
+  with_items:
+    - firstboot
+    - ssh-keygen
+ 
+- name: Stop rsyslog to release log files
   systemd:
     name: "{{ item }}"
     state: stopped
   with_items:
     - rsyslog
     - syslog.socket
-
+  
 - name: Find files for deleting
   find:
     paths: "{{ template_cleanup.dirs_to_clean }}"
@@ -49,7 +58,7 @@
     - net
     - cd
 
-- name: Delete machine-id file
+- name: Delete machine-id file this enables the firstboot service
   file:
     path: /etc/machine-id
     state: absent
@@ -71,7 +80,7 @@
     - subgid
     - subuid
 
-- name: Remove collected files and directories
+- name: Remove collected files 
   file:
     path: "{{ item.path }}"
     state: absent
@@ -102,18 +111,8 @@
   when: 
     - template_cleanup.fstrim
 
-- name: Copy over ssh host keys systemd unit
-  copy:
-    src: ssh-keygen.service
-    dest: /etc/systemd/system/ssh-keygen.service
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Enable ssh host key service
-  systemd:
-    name: ssh-keygen
-    enabled: true
-
-#- name: Remove ssh host keys - note this will break ssh so make sure this is the final task
-#  script: ssh-key-clean.sh 
+- name: clear kerberos and sss caches
+  command: "{{ item }}"
+  with_items:
+    - kdestroy -A
+    - sss_cache -E
