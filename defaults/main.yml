@@ -14,9 +14,9 @@ template_cleanup:
       path: /var/log/utmp
       owner: root
       group: root
-      mode: 0644
+      mode: '0644'
     - auth.log:
       path: /var/log/auth.log
       owner: syslog
       group: adm
-      mode: 0640
+      mode: '0640'
