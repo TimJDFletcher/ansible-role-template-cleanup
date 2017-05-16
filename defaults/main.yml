@@ -1,4 +1,12 @@
 ---
 # defaults file for ansible-role-template-cleanup
-template_cleanup_trim: false
-template_cleanup_lastlog_touch: true
+
+template_cleanup:
+  fstrim: false
+  lastlog_touch: true
+  clear_home: false
+  dirs_to_clean:
+    - /var/log
+    - /var/lib/apt/lists
+    - /var/cache/apt
+    - /var/lib/sss/db

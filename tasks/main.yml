@@ -35,11 +35,7 @@
 
 - name: Find files for deleting
   find:
-    paths: 
-      - /var/log
-      - /var/lib/apt/lists
-      - /var/cache/apt
-      - /var/lib/sss/db
+    paths: "{{ template_cleanup.dirs_to_clean }}"
     hidden: True
     recurse: True
     file_type: file
@@ -86,7 +82,7 @@
     state: touch
     path: /var/log/utmp
   when:
-    template_cleanup_lastlog_touch
+    template_cleanup.lastlog_touch
 
 - name: Clear out /home
   file:
@@ -98,12 +94,13 @@
   with_items:
     - absent
     - directory
+  when: template_cleanup.clear_home
 
 - name: Call fstrim on all filesystems
   command: fstrim "{{ item.mount }}"
   with_items: "{{ ansible_mounts }}"
   when: 
-    - template_cleanup_trim
+    - template_cleanup.fstrim
 
 - name: Copy over ssh host keys systemd unit
   copy:
@@ -117,8 +114,6 @@
   systemd:
     name: ssh-keygen
     enabled: true
-#    daemon_reload: true
 
 #- name: Remove ssh host keys - note this will break ssh so make sure this is the final task
 #  script: ssh-key-clean.sh 
-#  ignore_errors: true
