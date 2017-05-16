@@ -10,12 +10,12 @@ template_cleanup:
     - /var/cache/apt
     - /var/lib/sss/db
   log_files:
-    - utmp:
+    utmp:
       path: /var/log/utmp
       owner: root
       group: root
       mode: 0644
-    - auth.log:
+    auth.log:
       path: /var/log/auth.log
       owner: syslog
       group: adm
