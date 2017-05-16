@@ -41,6 +41,12 @@
   with_items:
     - rsyslog
     - syslog.socket
+    
+- name: clear kerberos and sss caches
+  command: "{{ item }}"
+  with_items:
+    - kdestroy -A
+    - sss_cache -E
   
 - name: Find files for deleting
   find:
@@ -111,8 +117,3 @@
   when: 
     - template_cleanup.fstrim
 
-- name: clear kerberos and sss caches
-  command: "{{ item }}"
-  with_items:
-    - kdestroy -A
-    - sss_cache -E
