@@ -33,7 +33,15 @@
   with_items:
     - firstboot
     - ssh-keygen
- 
+
+- name: Copy over firstboot script
+  copy:
+    src: laterooms-firstboot.sh
+    dest: /usr/sbin/laterooms-firstboot.sh
+    mode: 0755
+    owner: root
+    group: root
+
 - name: Stop rsyslog to release log files
   systemd:
     name: "{{ item }}"
