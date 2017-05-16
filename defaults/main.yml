@@ -3,10 +3,20 @@
 
 template_cleanup:
   fstrim: false
-  lastlog_touch: true
   clear_home: false
   dirs_to_clean:
     - /var/log
     - /var/lib/apt/lists
     - /var/cache/apt
     - /var/lib/sss/db
+  log_files:
+    - utmp:
+      path: /var/log/utmp
+      owner: root
+      group: root
+      mode: 0644
+    - auth.log:
+      path: /var/log/auth.log
+      owner: syslog
+      group: adm
+      mode: 0640
