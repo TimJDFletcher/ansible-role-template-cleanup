@@ -107,7 +107,7 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     mode: "{{ item.mode}}"
-  with_items: template_cleanup.log_files
+  with_items: "{{ template_cleanup.log_files }}"
 
 - name: Clear out /home
   file:
