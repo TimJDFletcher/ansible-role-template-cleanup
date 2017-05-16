@@ -1,6 +1,6 @@
 [Unit]
 Description=Generate sshd keys
-Before=ssh.server
+Before=ssh.service
 
 [Service]
 Type=oneshot
