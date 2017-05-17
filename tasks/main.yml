@@ -34,10 +34,26 @@
     - firstboot
     - ssh-keygen
 
-- name: Copy over firstboot script
+- name: Copy over firstboot wrapper script
   copy:
-    src: laterooms-firstboot.sh
-    dest: /usr/sbin/laterooms-firstboot.sh
+    src: firstboot.sh
+    dest: /sbin/firstboot
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create /etc/firstboot.d
+  file:
+    path: /etc/firstboot.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy over ssh key reset script
+  copy:
+    src: ssh-key-clean.sh
+    dest: /etc/firstboot.d/10-ssh-key-clean
     mode: 0755
     owner: root
     group: root
