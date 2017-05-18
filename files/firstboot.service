@@ -10,7 +10,7 @@ ConditionPathExists=!/etc/machine-id
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/sbin/laterooms-firstboot.sh
+ExecStart=/sbin/firstboot
 StandardOutput=tty
 StandardInput=tty
 StandardError=tty
