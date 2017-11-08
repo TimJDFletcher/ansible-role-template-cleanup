@@ -94,6 +94,14 @@
   file:
     path: /etc/machine-id
     state: absent
+    
+- name: Blank out /etc/network/interfaces
+  copy:
+    content: ""
+    dest: /etc/network/interfaces
+    group: root
+    owner: root
+    mode: 0644
 
 - name: reset logrotate status
   file:
