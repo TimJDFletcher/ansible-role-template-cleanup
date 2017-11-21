@@ -17,49 +17,6 @@
   async: 300
   poll: 5
   
-- name: Copy over systemd units
-  copy:
-    src: "{{ item }}.service"
-    dest: "/etc/systemd/system/{{ item }}.service"
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - firstboot
-    - ssh-keygen
-
-- name: Enable systemd services
-  systemd:
-    name: "{{ item }}"
-    enabled: true
-  with_items:
-    - firstboot
-    - ssh-keygen
-
-- name: Copy over firstboot wrapper script
-  copy:
-    src: firstboot.sh
-    dest: /sbin/firstboot
-    mode: 0755
-    owner: root
-    group: root
-
-- name: Create /etc/firstboot.d
-  file:
-    path: /etc/firstboot.d
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-
-- name: Copy over ssh key reset script
-  copy:
-    src: ssh-key-clean.sh
-    dest: /etc/firstboot.d/10-ssh-key-clean
-    mode: 0755
-    owner: root
-    group: root
-
 - name: Stop rsyslog to release log files
   systemd:
     name: "{{ item }}"
