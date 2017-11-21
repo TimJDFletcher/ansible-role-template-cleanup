@@ -17,6 +17,15 @@
   async: 300
   poll: 5
   
+- name: Look for a UKFAST swap device
+  stat:
+    path: /dev/eCloud/swap
+  register: ukfast_swap
+  
+- name: Remove UKFAST swap device
+  command: lvremove -f -y /dev/eCloud/swap
+  when: ukfast_swap.stat.islnk is defined and ukfast_swap.stat.islnk
+
 - name: Stop rsyslog to release log files
   systemd:
     name: "{{ item }}"
